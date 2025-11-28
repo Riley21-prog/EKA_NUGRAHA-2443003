@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blue Game Corner</title>
+  <style>
+    :root {
+      --primary: #0057e7;
+      --secondary: #ffffff;
+      --gray: #e6e6e6;
+      --dark: #111;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: var(--secondary);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--primary);
+      padding: 15px;
+      text-align: center;
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      background: #cfe2ff;
+      padding: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav button {
+      background: var(--primary);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    nav button:hover, nav button.active {
+      background: #003cb3;
+    }
+    .page {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.4s;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .page-title {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--primary);
+    }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+      justify-content: center;
+    }
+    .card {
+      border: 1px solid var(--gray);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      background: var(--secondary);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .emoji {
+      font-size: 90px;
+    }
+    .card h3 {
+      margin: 12px 0 6px;
+    }
+    .card p.price {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px 0;
+      color: var(--primary);
+    }
+    .btn {
+      background: var(--primary);
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      width: 100%;
+      cursor: pointer;
+      color: white;
+      font-size: 14px;
+      margin-top: 8px;
+      transition: 0.3s;
+    }
+    .btn:hover {
+      background: #003cb3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      border: 1px solid var(--gray);
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background: #f0f8ff;
+    }
+    .qty-btn {
+      padding: 6px 10px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 4px;
+    }
+    .empty-cart {
+      text-align: center;
+      padding: 40px;
+      color: #a0a0a0;
+    }
+    .checkout-form {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--gray);
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .voucher-container {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .voucher-container .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+    .voucher-container button {
+      height: fit-content;
+    }
+    .summary {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 30px;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .summary-total {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary);
+      border-top: 1px solid var(--gray);
+      padding-top: 10px;
+      margin-top: 10px;
+    }
+    #popup {
+      position: fixed;
+      right: 20px;
+      bottom: 100px;
+      background: #00b050;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      display: none;
+      z-index: 1000;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    #cartIcon {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: var(--primary);
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      z-index: 1000;
+    }
+    #cartBadge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #e74c3c;
+      color: white;
+      font-size: 13px;
+      padding: 3px 7px;
+      border-radius: 50%;
+      min-width: 20px;
+      text-align: center;
+    }
+    #modal {
+      position: fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .modal-box {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      width: 300px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-buttons button {
+      flex: 1;
+    }
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      margin-top: 50px;
+    }
+    @media (max-width: 768px) {
+      nav {
+        flex-wrap: wrap;
+      }
+      .products {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      }
+      .voucher-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .voucher-container button {
+        width: 100%;
+      }
+    }
+    @media (max-width: 480px) {
+      header {
+        font-size: 22px;
+      }
+      nav button {
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      .page {
+        padding: 15px;
+      }
+      .products {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>🎮 Blue Game Corner</header>
+
+  <nav>
+    <button id="produkBtn" onclick="openPage('produk')" class="active">Produk</button>
+    <button id="keranjangBtn" onclick="openPage('keranjang')">Keranjang</button>
+    <button id="checkoutBtn" onclick="openPage('checkout')">Checkout</button>
+  </nav>
+
+  <!-- PRODUK -->
+  <div id="produk" class="page">
+    <h2 class="page-title">Peralatan Gaming</h2>
+    <div class="products">
+      <div class="card">
+        <div class="emoji">🖱️</div>
+        <h3>Gaming Mouse RGB</h3>
+        <p class="price">Rp 150.000</p>
+        <button class="btn" onclick="addCart('Gaming Mouse RGB', 150000)">Tambah ke Keranjang</button>
+      </div>
+      <div class="card">
+        <div class="emoji">⌨️</div>
+        <h3>Mechanical Keyboard</h3>
+        <p class="price">Rp 450.000</p>
+        <button class="btn" onclick="addCart('Mechanical Keyboard', 450000)">Tambah ke Keranjang</button>
+      </div>
+      <div class="card">
+        <div class="emoji">🎧</div>
+        <h3>Gaming Headset</h3>
+        <p class="price">Rp 300.000</p>
+        <button class="btn" onclick="addCart('Gaming Headset', 300000)">Tambah ke Keranjang</button>
+      </div>
+      <div class="card">
+        <div class="emoji">💻</div>
+        <h3>Laptop Gaming</h3>
+        <p class="price">Rp 9.500.000</p>
+        <button class="btn" onclick="addCart('Laptop Gaming', 9500000)">Tambah ke Keranjang</button>
+      </div>
+      <div class="card">
+        <div class="emoji">🖥️</div>
+        <h3>Monitor Gaming</h3>
+        <p class="price">Rp 2.500.000</p>
+        <button class="btn" onclick="addCart('Monitor Gaming', 2500000)">Tambah ke Keranjang</button>
+      </div>
+      <div class="card">
+        <div class="emoji">🎮</div>
+        <h3>Controller Wireless</h3>
+        <p class="price">Rp 350.000</p>
+        <button class="btn" onclick="addCart('Controller Wireless', 350000)">Tambah ke Keranjang</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KERANJANG -->
+  <div id="keranjang" class="page">
+    <h2 class="page-title">Keranjang Belanja 🛒</h2>
+    <div id="cartTableContainer"></div>
+  </div>
+
+  <!-- CHECKOUT -->
+  <div id="checkout" class="page">
+    <h2 class="page-title">Checkout 📦</h2>
+    <div class="checkout-form">
+      <div class="form-group">
+        <label for="buyerName">Nama Pembeli:</label>
+        <input id="buyerName" type="text" placeholder="Masukkan nama lengkap...">
+      </div>
+      <div class="form-group">
+        <label>Masukkan Voucher:</label>
+        <div class="voucher-container">
+          <div class="form-group">
+            <input id="voucher" type="text" placeholder="GAME10 / GAMER20">
+          </div>
+          <button class="btn" onclick="applyVoucher()">Gunakan</button>
+        </div>
+        <div id="voucherInfo"></div>
+      </div>
+      <div class="summary">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span id="subtotalPrice">Rp 0</span>
+        </div>
+        <div class="summary-row">
+          <span>Diskon:</span>
+          <span id="discountAmount">Rp 0</span>
+        </div>
+        <div class="summary-row summary-total">
+          <span>Total Bayar:</span>
+          <span id="totalPrice">Rp 0</span>
+        </div>
+      </div>
+      <button class="btn" style="font-size:18px; margin-top: 20px;" onclick="processCheckout()">Bayar & Download Struk</button>
+    </div>
+  </div>
+
+  <div id="popup">🛍️ Barang ditambahkan ke keranjang</div>
+
+  <div id="cartIcon" onclick="openPage('keranjang')">
+    🛒<span id="cartBadge">0</span>
+  </div>
+
+  <div id="modal">
+    <div class="modal-box">
+      <h3>Hapus barang ini?</h3>
+      <p>Barang akan dihapus dari keranjang belanja</p>
+      <div class="modal-buttons">
+        <button class="btn" id="confirmDel">Hapus</button>
+        <button class="btn" style="background:gray;" onclick="closeModal()">Batal</button>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <p>&copy; 2023 Blue Game Corner. All rights reserved.</p>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let toDeleteIndex = null;
+    let discount = 0;
+    let appliedVoucher = '';
+
+    updateBadge();
+    openPage('produk');
+
+    function openPage(page) {
+      document.querySelectorAll('.page').forEach(e => e.style.display = 'none');
+      document.getElementById(page).style.display = 'block';
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(page + 'Btn').classList.add('active');
+      if (page === "keranjang") updateCart();
+      if (page === "checkout") updateTotal();
+    }
+
+    function addCart(name, price) {
+      let found = cart.find(i => i.name === name);
+      if (found) found.qty++;
+      else cart.push({name, price, qty:1});
+      save(); popup(); updateBadge();
+    }
+
+    function popup() {
+      const p = document.getElementById("popup");
+      p.style.display = "block";
+      setTimeout(() => p.style.display = "none", 1500);
+    }
+
+    function save() {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
+
+    function updateBadge() {
+      document.getElementById("cartBadge").innerText = cart.reduce((a, b) => a + b.qty, 0);
+    }
+
+    function updateCart() {
+      let container = document.getElementById("cartTableContainer");
+      
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <h3>Keranjang Belanja Kosong</h3>
+            <p>Silakan tambahkan produk ke keranjang belanja Anda</p>
+            <button class="btn" onclick="openPage('produk')">Belanja Sekarang</button>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = `
+        <table>
+          <tr><th>Barang</th><th>Harga</th><th>Qty</th><th>Total</th><th>Aksi</th></tr>
+      `;
+      
+      cart.forEach((i, x) => {
+        html += `
+          <tr>
+            <td>${i.name}</td>
+            <td>Rp ${i.price.toLocaleString()}</td>
+            <td>
+              <button class='qty-btn' onclick='changeQty(${x}, -1)'>-</button>
+              ${i.qty}
+              <button class='qty-btn' onclick='changeQty(${x}, 1)'>+</button>
+            </td>
+            <td>Rp ${(i.price * i.qty).toLocaleString()}</td>
+            <td><button class='btn' onclick='askDelete(${x})'>Hapus</button></td>
+          </tr>
+        `;
+      });
+      
+      html += `</table>`;
+      container.innerHTML = html;
+    }
+
+    function changeQty(i, a) {
+      cart[i].qty += a;
+      if (cart[i].qty <= 0) cart.splice(i, 1);
+      save(); updateCart(); updateBadge();
+    }
+
+    function askDelete(i) {
+      toDeleteIndex = i;
+      document.getElementById("modal").style.display = "flex";
+    }
+    
+    document.getElementById("confirmDel").onclick = function() {
+      cart.splice(toDeleteIndex, 1);
+      save(); updateCart(); updateBadge(); closeModal();
+    }
+    
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+    }
+
+    function applyVoucher() {
+      let v = document.getElementById("voucher").value.toUpperCase();
+      let base = cart.reduce((a, b) => a + b.price * b.qty, 0);
+      let voucherInfo = document.getElementById("voucherInfo");
+      
+      if (v === "GAME10") {
+        discount = 10000;
+        appliedVoucher = "GAME10";
+        voucherInfo.innerHTML = "Voucher GAME10 berhasil digunakan! Diskon Rp 10.000";
+        voucherInfo.style.color = "green";
+      } else if (v === "GAMER20" && base >= 200000) {
+        discount = Math.floor(base * 0.2);
+        appliedVoucher = "GAMER20";
+        voucherInfo.innerHTML = `Voucher GAMER20 berhasil digunakan! Diskon 20% (Rp ${discount.toLocaleString()})`;
+        voucherInfo.style.color = "green";
+      } else if (v === "GAMER20" && base < 200000) {
+        discount = 0;
+        appliedVoucher = '';
+        voucherInfo.innerHTML = "Voucher GAMER20 memerlukan minimal pembelian Rp 200.000";
+        voucherInfo.style.color = "red";
+      } else {
+        discount = 0;
+        appliedVoucher = '';
+        voucherInfo.innerHTML = "Kode voucher tidak valid";
+        voucherInfo.style.color = "red";
+      }
+      
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let base = cart.reduce((a, b) => a + b.price * b.qty, 0);
+      document.getElementById("subtotalPrice").innerText = "Rp " + base.toLocaleString();
+      document.getElementById("discountAmount").innerText = "Rp " + discount.toLocaleString();
+      document.getElementById("totalPrice").innerText = "Rp " + (base - discount).toLocaleString();
+    }
+
+    function validateForm() {
+      const name = document.getElementById('buyerName').value.trim();
+      if (!name) {
+        alert('Nama pembeli harus diisi');
+        return false;
+      }
+      if (cart.length === 0) {
+        alert('Keranjang belanja kosong');
+        return false;
+      }
+      return true;
+    }
+
+    function processCheckout() {
+      if (!validateForm()) return;
+      
+      const name = document.getElementById('buyerName').value.trim();
+      downloadPDF(name);
+      
+      // Reset cart after successful checkout
+      cart = [];
+      save();
+      updateBadge();
+      updateCart();
+      
+      // Show success message
+      alert('Pembayaran berhasil! Struk telah diunduh.');
+      
+      // Redirect to product page
+      openPage('produk');
+    }
+
+    async function downloadPDF(name) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      let y = 10;
+      
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(0, 87, 231);
+      doc.text("Blue Game Corner", 105, y, { align: "center" });
+      y += 10;
+      
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Struk Pembelian", 105, y, { align: "center" });
+      y += 15;
+      
+      // Customer info
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Nama: ${name}`, 10, y);
+      y += 10;
+      
+      // Products
+      doc.setFontSize(14);
+      doc.text("Daftar Produk:", 10, y);
+      y += 10;
+      
+      doc.setFontSize(10);
+      cart.forEach(item => {
+        doc.text(`${item.name}`, 10, y);
+        doc.text(`x${item.qty}`, 120, y);
+        doc.text(`Rp ${(item.price * item.qty).toLocaleString()}`, 180, y, { align: "right" });
+        y += 6;
+      });
+      
+      y += 10;
+      
+      // Summary
+      const base = cart.reduce((a, b) => a + b.price * b.qty, 0);
+      
+      doc.text(`Subtotal: Rp ${base.toLocaleString()}`, 150, y, { align: "right" });
+      y += 6;
+      
+      if (discount > 0) {
+        doc.text(`Diskon: Rp ${discount.toLocaleString()}`, 150, y, { align: "right" });
+        y += 6;
+      }
+      
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      doc.text(`Total: Rp ${(base - discount).toLocaleString()}`, 150, y, { align: "right" });
+      y += 10;
+      
+      if (appliedVoucher) {
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        doc.text(`Voucher: ${appliedVoucher}`, 10, y);
+      }
+      
+      y += 15;
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Terima kasih telah berbelanja di Blue Game Corner!", 105, y, { align: "center" });
+      
+      // Save the PDF
+      doc.save("Struk_Blue_Game_Corner.pdf");
+    }
+  </script>
+</body>
+</html>
